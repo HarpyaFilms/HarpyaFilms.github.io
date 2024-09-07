@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harpya Films - Filmagens com Drone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sky-blue: #87CEEB;
+            --cloud-white: #FFFFFF;
+            --sunset-orange: #FFA500;
+            --night-blue: #191970;
+            --grass-green: #228B22;
+            --primary-color: #FFA500; /* Cor principal */
+            --secondary-color: #191970; /* Cor secundária */
+            --text-color: #fff; /* Cor do texto */
+            --box-shadow: 0 5px 15px rgba(0,0,0,0.1); /* Sombra padrão */
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, var(--sky-blue), var(--sunset-orange));
+            color: var(--night-blue);
+            min-height: 100vh;
+            overflow-x: hidden; /* Remove scroll horizontal */
+            scroll-behavior: smooth; /* Scroll suave */
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: rgba(25, 25, 112, 0.8);
+            color: var(--text-color);
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        header.scrolled {
+            background: rgba(25, 25, 112, 0.95);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--cloud-white);
+            box-shadow: var(--box-shadow);
+            transition: transform 0.3s ease;
+        }
+        .logo:hover {
+            transform: scale(1.1);
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 1rem; /* Ajusta o tamanho da fonte */
+        }
+        nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        nav a:hover::before {
+            left: 0;
+        }
+        .showcase {
+            height: 100vh;
+            display: flex;
+            flex-direction: column; /* Alinha elementos verticalmente */
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .showcase h1 {
+            font-size: 3rem; /* Ajusta o tamanho da fonte */
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            animation: fadeInUp 1s ease-out;
+        }
+        .showcase p {
+            font-size: 1.4rem; /* Ajusta o tamanho da fonte */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            animation: fadeInUp 1s ease-out 0.5s backwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .cloud {
+            position: absolute;
+            background: var(--cloud-white);
+            border-radius: 100px;
+            animation: float linear infinite;
+            opacity: 0.8;
+            filter: blur(3px);
+            z-index: -1; /* Coloca as nuvens atrás do conteúdo */
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: inherit;
+            border-radius: 50%;
+        }
+        .cloud1 { width: 200px; height: 60px; top: 15%; animation-duration: 84s; }
+        .cloud2 { width: 300px; height: 100px; top: 45%; animation-duration: 120s; animation-delay: -20s; }
+        .cloud3 { width: 150px; height: 40px; top: 75%; animation-duration: 96s; animation-delay: -40s; }
+        .cloud1::before { width: 100px; height: 100px; top: -50px; left: 10px; }
+        .cloud1::after { width: 120px; height: 120px; top: -70px; right: 10px; }
+        .cloud2::before { width: 170px; height: 170px; top: -90px; left: 40px; }
+        .cloud2::after { width: 200px; height: 200px; top: -120px; right: 40px; }
+        .cloud3::before { width: 80px; height: 80px; top: -40px; left: 10px; }
+        .cloud3::after { width: 100px; height: 100px; top: -60px; right: 10px; }
+        @keyframes float {
+            0% { transform: translateX(-100%) translateY(0); }
+            50% { transform: translateX(50vw) translateY(20px); }
+            100% { transform: translateX(100vw) translateY(0); }
+        }
+        .drone {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23333" d="M22 10.5c0 1.1-.9 2-2 2h-2.3c-.5 2-2.3 3.5-4.4 3.5-2.1 0-3.9-1.5-4.4-3.5H6c-1.1 0-2-.9-2-2s.9-2 2-2h2.3c.5-2 2.3-3.5 4.4-3.5 2.1 0 3.9 1.5 4.4 3.5H20c1.1 0 2 .9 2 2zm-9.7-3c-1.3 0-2.3 1-2.3 2.3 0 1.3 1 2.3 2.3 2.3 1.3 0 2.3-1 2.3-2.3 0-1.3-1-2.3-2.3-2.3z"/></svg>');
+            background-size: contain;
+            animation: fly 20s infinite linear; /* Animação mais rápida */
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+            z-index: -1; /* Coloca o drone atrás do conteúdo */
+        }
+        @keyframes fly {
+            0%, 100% { top: 80%; left: -100px; transform: rotate(0deg) scale(1); }
+            25% { top: 40%; left: 25%; transform: rotate(15deg) scale(0.8); }
+            50% { top: 20%; left: 50%; transform: rotate(0deg) scale(1.2); }
+            75% { top: 60%; left: 75%; transform: rotate(-15deg) scale(0.9); }
+        }
+        main {
+            padding-top: 120px;
+        }
+        article, aside {
+            padding: 6rem 0;
+            text-align: center;
+        }
+        .portfolio {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--box-shadow);
+        }
+        .portfolio .video-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .portfolio iframe {
+            width: 90%; /* Ajusta a largura para ocupar 90% da tela */
+            height: 430px;
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--box-shadow);
+            transition: all 0.3s ease;
+        }
+        .portfolio iframe:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        aside {
+            background: rgba(25, 25, 112, 0.9);
+            color: var(--text-color);
+            position: relative;
+            overflow: hidden;
+        }
+        aside::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 80%);
+            animation: pulse 15s infinite linear;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(0.8); }
+        }
+        aside ul {
+            list-style-type: none;
+            position: relative;
+            z-index: 1;
+        }
+        aside li {
+            background: var(--primary-color); /* Cor principal */
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%; /* Ajusta a largura para ocupar 90% da tela */
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: var(--box-shadow);
+            font-size: 1.2rem; /* Ajusta o tamanho da fonte */
+            font-weight: 600; /* Negrito */
+        }
+        aside li:hover {
+            background: var(--sunset-orange); /* Cor laranja */
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .contact {
+            background: rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+        .contact::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to top, rgba(25, 25, 112, 0.1), transparent);
+        }
+        .contact a {
+            display: inline-flex;
+            align-items: center;
+            margin: 15px;
+            padding: 15px 30px;
+            background-color: var(--secondary-color); /* Cor secundária */
+            color: var(--text-color); /* Cor do texto */
+            text-decoration: none;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            box-shadow: var(--box-shadow);
+            font-size: 1rem; /* Ajusta o tamanho da fonte */
+        }
+        .contact a:hover {
+            background-color: var(--primary-color); /* Cor principal */
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .contact svg {
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+        .contact a:hover svg {
+            transform: scale(1.2);
+        }
+        footer {
+            background: var(--secondary-color); /* Cor secundária */
+            color: var(--text-color); /* Cor do texto */
+            text-align: center;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        footer::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            animation: rotate 30s infinite linear;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        footer p {
+            position: relative;
+            z-index: 1;
+            font-size: 1rem; /* Ajusta o tamanho da fonte */
+        }
+        @media(max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem 0;
+            }
+            nav {
+                margin-top: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .showcase h1 {
+                font-size: 2rem; /* Ajusta o tamanho da fonte */
+            }
+            .showcase p {
+                font-size: 1rem; /* Ajusta o tamanho da fonte */
+            }
+            .portfolio iframe {
+                width: 90%; /* Ajusta a largura para ocupar 90% da tela */
+                height: 350px;
+            }
+            aside li {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="img.png" alt="Harpya Films Logo">
+        </div>
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#portfolio">Portfólio</a>
+            <a href="#prices">Preços</a>
+            <a href="#contact">Contato</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="showcase">
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+            <div class="cloud cloud3"></div>
+            <div class="drone"></div>
+            <div class="container">
+                <h1>Harpya Films</h1>
+                <p>Filmagens aéreas de eventos e shows com drone</p>
+            </div>
+        </section>
+
+        <article id="portfolio" class="portfolio">
+            <div class="container">
+                <h2>Nosso Portfólio</h2>
+                <div class="video-container">
+                    <!-- Primeiro Vídeo -->
+                    <iframe src="https://drive.google.com/file/d/1KdpTOmH7OECf47ooMVUEvuoQPVvti8ju/preview" width="640" height="360" allowfullscreen></iframe>
+                    <!-- Segundo Vídeo -->
+                    <iframe src="https://drive.google.com/file/d/1AGCTKT9aGaPs1nfOnQAeiT7b-BlkLOqP/preview" width="640" height="360" allowfullscreen></iframe>
+                </div>
+            </div>
+        </article>
+
+        <aside id="prices">
+            <div class="container">
+                <h2>Nossos Preços</h2>
+                <ul>
+                    <li><strong>Filmagens Brutas:</strong> R$ 250 - Ideal para quem já possui editor ou precisa de material para projetos futuros.</li>
+                    <li><strong>Pacote Completo:</strong> R$ 300 - Inclui filmagens brutas e um vídeo editado pronto para postar no YouTube, Instagram, etc.</li>
+                </ul>
+            </div>
+        </aside>
+
+        <article id="contact" class="contact">
+            <div class="container">
+                <h2>Entre em Contato</h2>
+                <section>
+                    <a href="https://www.instagram.com/harpya.films/" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                        Instagram
+                    </a>
+                    <a href="https://wa.me/556282738536" target="_blank">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                        </svg>
+                        WhatsApp
+                    </a>
+                </section>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+        <p>Harpya Films © 2024</p>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
